@@ -102,11 +102,13 @@ num_played_games = st.number_input(
     value=30,
     step=20,
 )
-played_games = list(g for g in iterate_with_progress(
-    lambda: model.simulateGame(p1=mdl),
-    num_played_games,
-    f"Playing {num_played_games} games..."
-))
 
-st.write(game.gameStats(played_games))
+if st.button("Play!"):
+    played_games = list(g for g in iterate_with_progress(
+        lambda: model.simulateGame(p1=mdl),
+        num_played_games,
+        f"Playing {num_played_games} games..."
+    ))
+
+    st.write(game.gameStats(played_games))
 
