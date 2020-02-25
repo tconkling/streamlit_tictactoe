@@ -152,35 +152,6 @@ def getWinner(board):
         return -1
 
 
-def simulateGame(p1=None, p2=None, rnd=0):
-    """Simulate a complete game and return the move history."""
-    history = []
-    board = initBoard()
-    playerToMove = 1
-
-    while getWinner(board) == -1:
-        # Chose a move (random or use a player model if provided)
-        move = None
-        if playerToMove == 1 and p1 != None:
-            move = None  # bestMove(board, p1, playerToMove, rnd)
-        elif playerToMove == 2 and p2 != None:
-            move = None  # bestMove(board, p2, playerToMove, rnd)
-        else:
-            moves = getMoves(board)
-            move = moves[random.randint(0, len(moves) - 1)]
-
-        # Make the move
-        board[move[0]][move[1]] = playerToMove
-
-        # Add the move to the history
-        history.append((playerToMove, move))
-
-        # Switch the active player
-        playerToMove = 1 if playerToMove == 2 else 2
-
-    return history
-
-
 def movesToBoard(moves):
     """Construct a board from a move history"""
     board = initBoard()

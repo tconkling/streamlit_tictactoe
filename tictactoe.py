@@ -1,5 +1,5 @@
 """Adapted from https://medium.com/swlh/tic-tac-toe-and-deep-neural-networks-ea600bc53f51"""
-
+import os
 import time
 
 import streamlit as st
@@ -13,10 +13,14 @@ from game.STProgressLogger import STProgressLogger
 tf.keras.backend.clear_session()
 
 
-def iterate_with_progress(count, f):
+def iterate_with_progress(f, count, notice_text=None):
     """Run a function a given number of times, yielding
     its result after each run. Show a progress bar.
     """
+    notice = None
+    if notice_text is not None:
+        notice = st.text(notice_text)
+
     progress_bar = st.progress(0)
     last_update = time.time()
     update_rate = 1.0 / 30.0
@@ -29,23 +33,27 @@ def iterate_with_progress(count, f):
             progress_bar.progress(float(ii / count))
             last_update = now
     progress_bar.empty()
+    if notice is not None:
+        notice.text("")
+        notice.empty()
 
 
 @st.cache(suppress_st_warning=True)
 def create_training_games(count):
-    notice = st.text(f"Building {count} simulated games...")
-    result = list(g for g in iterate_with_progress(count, game.simulateGame))
-    notice.empty()
-    return result
+    return list(g for g in iterate_with_progress(
+        model.simulateGame,
+        count,
+        f"Building {count} simulated games..."
+    ))
 
 
 def get_model(num_games):
     """Load or train our Keras model."""
-    notice = st.text(f"Loading model ({num_games} games)...")
-    filename = f"model_{num_games}.h5"
+    filename = os.path.abspath(f"./model_{num_games}.h5")
+    notice = st.text(f"Loading {filename}...")
     try:
         mdl = keras.models.load_model(filename)
-        notice.text(f"Loading model ({num_games} games)... Done!")
+        notice.text(f"Loading {filename}... Done!")
         return mdl
     except BaseException as e:
         print(f"Failed to load {filename}: {e}")
@@ -65,6 +73,7 @@ def get_model(num_games):
         validation_data=(x_test, y_test),
         epochs=100,
         batch_size=100,
+        verbose=0,
         callbacks=[
             progress_logger,
         ]
@@ -75,12 +84,29 @@ def get_model(num_games):
 
     return mdl
 
+st.image("shall_we_play.jpg")
 
 # Build training data
-num_games = st.number_input(
+num_training_games = st.number_input(
     label="Num training games",
-    min_value=1,
+    min_value=0,
     value=500,
     step=100
 )
-model_bytes = get_model(num_games)
+mdl = get_model(num_training_games)
+
+# Simulate
+num_played_games = st.number_input(
+    label="Num played games",
+    min_value=0,
+    value=30,
+    step=20,
+)
+played_games = list(g for g in iterate_with_progress(
+    lambda: model.simulateGame(p1=mdl),
+    num_played_games,
+    f"Playing {num_played_games} games..."
+))
+
+st.write(game.gameStats(played_games))
+
