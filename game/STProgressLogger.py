@@ -223,7 +223,7 @@ class STProgressLogger(Callback):
     def on_epoch_begin(self, epoch, logs=None):
         if self.verbose:
             # self.progress_element.text('Epoch %d/%d' % (epoch + 1, self.epochs))
-            self.progress_element.progress(int(epoch + 1))
+            self.progress_element.progress(float((epoch + 1) / self.epochs))
             if self.use_steps:
                 target = self.params['steps']
             else:

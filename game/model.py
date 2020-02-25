@@ -1,10 +1,10 @@
 """Model for training and playing tictactoe"""
 
 import numpy as np
+from keras.utils.np_utils import to_categorical
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras.models import Sequential
-from keras.utils.np_utils import to_categorical
 
 from game.game import *
 
