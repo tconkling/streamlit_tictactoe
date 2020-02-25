@@ -1,3 +1,4 @@
 streamlit-0.52.2.post20200225-py2.py3-none-any.whl
 Keras==2.3.1
 numpy==1.18.1
+tensorflow==2.1.0

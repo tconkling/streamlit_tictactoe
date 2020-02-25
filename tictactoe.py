@@ -1,8 +1,10 @@
 import time
 
 import streamlit as st
+from keras.callbacks import ProgbarLogger
 
-from game import *
+from game import model, game
+from game.STProgressLogger import STProgressLogger
 
 
 def iterate_with_progress(count, f):
@@ -15,20 +17,36 @@ def iterate_with_progress(count, f):
     for ii in range(count):
         yield f()
         now = time.time()
-        if (now - last_update) >= update_rate:
+        if ii == count - 1:
+            progress_bar.progress(1.0)
+        elif (now - last_update) >= update_rate:
             progress_bar.progress(float(ii / count))
             last_update = now
-    progress_bar.progress(1.0)
+    progress_bar.empty()
 
 
 @st.cache(suppress_st_warning=True)
 def simulate_games(num_games):
     notice = st.text(f"Simulating {num_games} games...")
-    games = list(game for game in iterate_with_progress(num_games, simulateGame))
+    games = list(g for g in iterate_with_progress(num_games, game.simulateGame))
     notice.empty()
     return games
 
 
 NUM_GAMES = 1000
 games = simulate_games(NUM_GAMES)
-st.write("Player 1 stats: ", gameStats(games, 1))
+
+mdl = model.getModel()
+x_train, x_test, y_train, y_test = model.gamesToWinLossData(games)
+
+progress_logger = STProgressLogger()
+history = mdl.fit(
+    x=x_train,
+    y=y_train,
+    validation_data=(x_test, y_test),
+    epochs=100,
+    batch_size=100,
+    callbacks=[
+        progress_logger,
+    ]
+)

@@ -1,3 +1,5 @@
+"""Basic tictactoe data & logic"""
+
 import random
 
 import pandas as pd
