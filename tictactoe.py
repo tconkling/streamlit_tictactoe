@@ -59,27 +59,27 @@ def get_model(num_games):
         print(f"Failed to load {filename}: {e}")
         pass
 
-    mdl = model.getModel()
-    games = create_training_games(num_games)
-
     notice.text(f"Training model ({num_games} games)...")
+    mdl = model.getModel()
+    if num_games > 0:
+        games = create_training_games(num_games)
 
-    x_train, x_test, y_train, y_test = model.gamesToWinLossData(games)
-    progress_logger = STProgressLogger()
+        x_train, x_test, y_train, y_test = model.gamesToWinLossData(games)
+        progress_logger = STProgressLogger()
 
-    history = mdl.fit(
-        x=x_train,
-        y=y_train,
-        validation_data=(x_test, y_test),
-        epochs=100,
-        batch_size=100,
-        verbose=0,
-        callbacks=[
-            progress_logger,
-        ]
-    )
+        history = mdl.fit(
+            x=x_train,
+            y=y_train,
+            validation_data=(x_test, y_test),
+            epochs=100,
+            batch_size=100,
+            verbose=0,
+            callbacks=[
+                progress_logger,
+            ]
+        )
+
     notice.text(f"Training model ({num_games} games)... Done!")
-
     keras.models.save_model(mdl, filename)
 
     return mdl
@@ -99,7 +99,7 @@ mdl = get_model(num_training_games)
 num_played_games = st.number_input(
     label="Num played games",
     min_value=0,
-    value=30,
+    value=50,
     step=20,
 )
 
