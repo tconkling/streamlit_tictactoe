@@ -220,6 +220,10 @@ class STProgressLogger(Callback):
         self.verbose = self.params['verbose']
         self.epochs = self.params['epochs']
 
+    def on_train_end(self, logs=None):
+        self.progress_element.empty()
+        self.epoch_element.empty()
+
     def on_epoch_begin(self, epoch, logs=None):
         if self.verbose:
             # self.progress_element.text('Epoch %d/%d' % (epoch + 1, self.epochs))

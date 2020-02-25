@@ -41,9 +41,11 @@ def create_training_games(count):
 
 def get_model(num_games):
     """Load or train our Keras model."""
+    notice = st.text(f"Loading model ({num_games} games)...")
     filename = f"model_{num_games}.h5"
     try:
         mdl = keras.models.load_model(filename)
+        notice.text(f"Loading model ({num_games} games)... Done!")
         return mdl
     except BaseException as e:
         print(f"Failed to load {filename}: {e}")
@@ -52,7 +54,7 @@ def get_model(num_games):
     mdl = model.getModel()
     games = create_training_games(num_games)
 
-    notice = st.text(f"Training model...")
+    notice.text(f"Training model ({num_games} games)...")
 
     x_train, x_test, y_train, y_test = model.gamesToWinLossData(games)
     progress_logger = STProgressLogger()
@@ -67,14 +69,18 @@ def get_model(num_games):
             progress_logger,
         ]
     )
-    notice.empty()
+    notice.text(f"Training model ({num_games} games)... Done!")
 
     keras.models.save_model(mdl, filename)
 
     return mdl
 
-# Build training data
-NUM_GAMES = 10000
-model_bytes = get_model(NUM_GAMES)
 
-st.write("Done!")
+# Build training data
+num_games = st.number_input(
+    label="Num training games",
+    min_value=1,
+    value=500,
+    step=100
+)
+model_bytes = get_model(num_games)
